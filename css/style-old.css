@@ -1,0 +1,53 @@
+span.heavy {
+    font-weight: 700;
+}
+
+h2.search-title {
+    color: white;
+}
+
+#movies .movie-card {
+    margin: 1em;
+    width: 10em;
+}
+
+#movies .movie-card img {
+    max-width: 150px;
+}
+
+#movies a.btn {
+    width: 15em;
+}
+
+#movies .movie-card h4.movie-card-title {
+    max-width: 9em;
+    overflow: hidden;
+    line-height: normal;
+}
+
+@media(min-width:960px) {
+    #movies .col-md-3 .well {
+        height: 390px;
+    }
+    #movies .col-md-3 img {
+        height: 240px;
+    }
+}
+
+.jumbotron {
+    background-color: #d60724;
+    background: linear-gradient(135deg, #a90329 0%, #b50303 54%, #930002 100%);
+}
+
+h2 {
+    color: #abb0b3;
+}
+
+.navbar-brand {
+    font-size: 33px;
+    padding-right: 840px;
+}
+
+.well {
+    text-align: center;
+}
