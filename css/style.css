@@ -70,3 +70,15 @@ span.movie-card-title {
     font-size: 33px;
     padding-right: 840px;
 }
+
+#result-counter-value {
+    font-size: 1.3em;
+}
+
+#load-more {
+    text-align: center;
+}
+
+.hide {
+    display: none;
+}

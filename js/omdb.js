@@ -1,61 +1,63 @@
 /*
-module for calling OMDB Api
-Requires api key, see http://www.omdbapi.com/
-Huge thanks for the creator making this freely available
+SUMMARY
+DEPENDS ON: none (but requires API key, see http://www.omdbapi.com/)
+FUNCTIONALITY: Calls omdb API to retrieve individual movie data and also search movies by title; passes API key in URL to authenticate request
+USED BY: index.js, movie-profile.js, and movie-search.js
+THANKS TO: http://www.omdbapi.com/ for offering free API keys
 */
 
-let omdb = (function() {
+const omdb = (function() { //module pattern
 
-    let exposable = {}; //internal object; everything placed within "agent" will be public outside of omdb 
+    let exportable = {}; //everything assigned to exportable is publicly exposed outside of omdb  
 
-    const baseSearchUrl = 'http://www.omdbapi.com?s=';
-    const baseGetUrl = 'http://www.omdbapi.com?i=';
+    const baseSearchUrl = 'http://www.omdbapi.com?s='; //note "s" 
+    const baseGetUrl = 'http://www.omdbapi.com?i='; //note "i", for movie ids in IMDB format
     const apiFragment = '&apikey=';
     let apiKey;
     let searchTerm;
     let imdbId;
-    let movieList;
 
     /*
-    PRVIATE METHODS
+    PRIVATE METHODS
     */
-    let searchByStringUrl = (searchTerm) => `${baseSearchUrl}${searchTerm}${apiFragment}${apiKey}`;
-    let getByIdUrl = (imdbId) => `${baseGetUrl}${imdbId}${apiFragment}${apiKey}`;
 
-    let callSearchApi = (searchTerm) => fetch(searchByStringUrl(searchTerm));
-    let callGetByIdApi = (imdbId) => fetch(getByIdUrl(imdbId));
+    //create API-specific URLs
+    const searchUrl = (searchTerm) => `${baseSearchUrl}${searchTerm}${apiFragment}${apiKey}`;
+    const idUrl = (imdbId) => `${baseGetUrl}${imdbId}${apiFragment}${apiKey}`;
+    const paginatedSearchUrl = (searchTerm, page) => searchUrl(searchTerm) + `&page=${page}`;
 
+    //check that HTTP status code was in 200-299 range, else throw error and stop the train   
     let validate = (response) => {
         if (!response.ok) {
             throw Error(response.statusText);
         }
         return response;
     }
-    let parseAsJson = (response) => response.json();
-    let logResult = (result) => console.log(result);
 
-    let promiseToJson = (promise) => {
-        json = promise.then(validate)
-            .then(parseAsJson)
-            .catch((error) => console.error(error));
-        return json;
+    //
+    let validateAndParse = (promise) => {
+        let results = promise.then(validate) //check HTTP response for any error
+            .then((response) => response.json()) //get json from promise
+            .catch((error) => console.error(error)); //catch any promise-related errors
+        return results;
     }
 
     /*
     PUBLIC METHODS
     */
-    exposable.setKey = (newKey) => apiKey = newKey;
+    exportable.setKey = (newKey) => apiKey = newKey;
 
-    exposable.getMovieList = (searchTerm) => {
-        let promise = callSearchApi(searchTerm);
-        return promiseToJson(promise);
+    //within fetch(), you can optionally call searchUrl() or paginatedSearchUrl()
+    exportable.getMovieList = (searchTerm, page = 1) => {
+        let promise = fetch(paginatedSearchUrl(searchTerm, page)); //fetch() returns a promise
+        return validateAndParse(promise);
     };
 
-    exposable.getSingleMovieDetail = (imdbId) => {
-        let promise = callGetByIdApi(imdbId);
-        return promiseToJson(promise);
+    exportable.getOneMovieProfile = (imdbId) => {
+        let promise = fetch(idUrl(imdbId)); //fetch() returns a promise
+        return validateAndParse(promise);
     };
 
-    return exposable //expose all of the this object's properties outside of omdb
+    return exportable //expose all of this object's properties outside of omdb
 
 }())

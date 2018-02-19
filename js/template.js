@@ -1,8 +1,8 @@
-let template = (function() {
+const template = (function() {
 
-    let exposable = {};
+    let exportable = {};
 
-    exposable.movieCard = (movie) =>
+    exportable.movieCard = (movie) =>
         `
         <li>
           <a onclick="loadMovieProfile('${movie.imdbID}')" href="#">
@@ -17,7 +17,7 @@ let template = (function() {
         </li>
     `;
 
-    exposable.oneMovieProfile = (movie) =>
+    exportable.movieProfileFull = (movie) =>
         `<div class="row">
           <div class="col-md-4">
             <img src="${movie.Poster}" class="img-fluid">
@@ -50,6 +50,6 @@ let template = (function() {
         <br><br>
       `;
 
-    return exposable
+    return exportable
 
 }());
