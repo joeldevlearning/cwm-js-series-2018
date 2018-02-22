@@ -1,6 +1,26 @@
-const template = (function() {
+/*
+SUMMARY
+DEPENDS ON: none
+FUNCTIONALITY: Supports mixing javascript variables with html (in string form) via template literals
+USED BY: index.js and movie-profile.js
+NOTE: The template functions each return strings, not DOM nodes. To insert them into the DOM, assign their value to innerHTML or similar (the append* methods will NOT work).
+*/
+
+const template = (function() { //module pattern
 
     let exportable = {};
+
+    /*
+    INDEX.JS TEMPLATE
+    */
+
+    exportable.render = (movies) => {
+        let output = '';
+        movies.forEach(movies => {
+            output += template.movieCard(movies);
+        });
+        return output;
+    }
 
     exportable.movieCard = (movie) =>
         `
@@ -15,7 +35,11 @@ const template = (function() {
           </div>
           </a>
         </li>
-    `;
+    `; //the entire template literal string is implicitly returned to the caller
+
+    /*
+    MOVIE-PROFILE.JS TEMPLATE
+    */
 
     exportable.movieProfileFull = (movie) =>
         `<div class="row">
@@ -48,8 +72,8 @@ const template = (function() {
         </div>
         </div>
         <br><br>
-      `;
+      `; //the entire template literal string is implicitly returned to the caller
 
-    return exportable
+    return exportable;
 
 }());

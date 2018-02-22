@@ -58,6 +58,6 @@ const omdb = (function() { //module pattern
         return validateAndParse(promise);
     };
 
-    return exportable //expose all of this object's properties outside of omdb
+    return exportable; //expose all of this object's properties outside of omdb
 
 }())

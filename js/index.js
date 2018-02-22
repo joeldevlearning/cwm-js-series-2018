@@ -6,38 +6,47 @@ USED BY: none, but required for index.html
 */
 
 /*
-PAGE INIT LOGIC
+DEFINITIONS
 */
-
 const m = new MovieSearch(omdb); //create a singleton for searching movies
 
 //abbreviated labels for key DOM elements
 const searchInput = document.querySelector('#search-form-input');
 const searchForm = document.querySelector('#search-form');
 const resultList = document.querySelector('#movies');
-const loadMoreButton = document.querySelector('#load-more-button');
-const resultCounter = document.querySelector('#result-counter-value');
+const MoreBtn = document.querySelector('#load-more-button');
+const counter = document.querySelector('#result-counter-value');
 
-let updateResultCounter = (returned, total) => {
-    resultCounter.innerHTML = `Viewing ${returned} results of ${total}`;
+let updateCounter = (returned, total) => {
+    counter.innerHTML = `Viewing ${returned} results of ${total}`;
 }
 
-let displayMsgNoResults = (query) => {
-    resultCounter.innerHTML = `Sorry, no results found for '${query}'`;
+let displayMsgNoResults = () => {
+    counter.innerHTML = `Sorry, no results found`;
 }
 
-let displayMsgEndOfResults = (query) => {
-    resultCounter.innerHTML = `End of results for '${query}'`;
-    loadMoreButton.disabled = true;
+let displayError = (error) => {
+    counter.innerHTML = error;
 }
 
-/*
-EVENTS
-*/
+let isValid = (input) => {
+    if (typeof input != "undefined" &&
+        typeof input.valueOf() === "string" &&
+        input.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//write a new URL + movie id hash to the address bar
+//implicitly redirects user to movie-profile.html
+let loadMovieProfile = (imdbId) => {
+    location.assign(`movie-profile.html#${imdbId}`);
+}
 
 //focus the blinking cursor on the search input field
 let initfocusOnSearch = () => searchInput.focus();
-initfocusOnSearch(); //implicitly call once on page load
 
 //connect the search form submit event to the 
 let initOnePageSearch = () => { //connect the search
@@ -47,100 +56,87 @@ let initOnePageSearch = () => { //connect the search
     })
 };
 
-//write a new URL + movie id hash to the address bar
-//implicitly redirects user to movie-profile.html
-let loadMovieProfile = (imdbId) => {
-    location.assign(`movie-profile.html#${imdbId}`);
-}
-
-/*
-SEARCH LOGIC
-*/
-
-/*
-initOnePageSearch();
-*/
-
-//multi-page version that replaces onePageSearch() 
-//!!! WARNING: only hook ONE of these functions to the submit event
+//alternative search function, supports pagination, *CONFLICTS* with OnePageSearch
 let initMultiPageSearch = () => { //connect the search
     searchForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        multiPageSearch(searchInput.value); //search via the form erases counter
-    })
-};
-initMultiPageSearch(); //implicitly call once on page load
-
-//reveal the "load more" button and connect its click event to 
-let showLoadMoreButton = () => {
-    loadMoreButton.classList.toggle("hide");
-    loadMoreButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        if (m.hasMoreResults) {
-            getNextPage();
+        resetPage();
+        if (isValid(searchInput.value)) {
+            multiPageSearch(searchInput.value.trim()); //trim whitespace on both sides of the string
         } else {
-            disableLoadMoreButton();
+            displayMsgNoResults();
         }
     })
 };
 
-let disableLoadMoreButton = () => {
-    loadMoreButton.disabled = true;
-    loadMoreButton.textContent = 'End of Results';
-    displayMsgEndOfResults();
-}
+//hook load more button event to handler
+let initMoreBtn = () => {
+    MoreBtn.addEventListener("click", getNextPage);
+};
 
-/*
-PAGE LOGIC
-*/
+//reveal the "load more" button
+let showMoreBtn = () => {
+    MoreBtn.classList.remove("hide");
+};
+
+//disable the "load more" button and change its text label
+let showDisabledMoreBtn = () => {
+    MoreBtn.disabled = true;
+    MoreBtn.textContent = 'End of Results';
+
+};
+
+let resetPage = () => {
+    counter.innerHTML = '';
+    resultList.innerHTML = '';
+    MoreBtn.classList.add("hide");
+};
+
 
 //return just the first page of results using only omdb.js
-//no support for pagination, because does not use movie-search.js 
+//no support for pagination
 let onePageSearch = (searchText) => {
-    omdb.getMovieList(searchText)
-        .then((response) => {
-            let movies = response.Search;
-            updateResultCounter(movies.length, response.totalResults);
-            let output = '';
-            console.log(response);
+    omdb.getMovieList(searchText) //return promise from function
+        .then((response) => { //when promise is in-hand, let's work on it contents
+            let movies = response.Search; //extract nested array of search results
+            updateCounter(movies.length, response.totalResults); //update the numbers
+            let output = ''; //declare our string...
             movies.forEach(movies => {
-                output += template.movieCard(movies);
+                output += template.movieCard(movies); //populate our string
             });
-            resultList.innerHTML = output; //implicitly overwrite existing results
+            resultList.innerHTML = output; //push string to DOM, implicitly overwrite any content already there
         })
 }
 
 //returns first page of results using movie-search.js
-//additional results are returned via 
 let multiPageSearch = (searchText) => {
-    resultList.innerHTML = '';
     let results = m.newSearch(searchText);
     results.then((results) => {
-        if (results.Search) { //if we have results
-            let movies = results.Search; //extract nested array of search results
-            updateResultCounter(movies.length, results.totalResults);
-            let output = '';
-            movies.forEach(movies => {
-                output += template.movieCard(movies);
-            });
-            resultList.innerHTML = output; //implicitly overwrite existing results
-            m.hasMoreResults() ? showLoadMoreButton() : '';
-        } else { //if no results, let user know
-            displayMsgNoResults(searchText);
+        if (!results.Search) {
+            displayError(results.Error);
+            return;
         }
+        updateCounter(m.totalResultsViewed, results.totalResults);
+        resultList.insertAdjacentHTML('beforeend', template.render(results.Search));
+        m.hasMoreResults() ? showMoreBtn() : showDisabledMoreBtn();
     })
 }
 
+//gets next page of search results, called by load more button
 let getNextPage = () => {
-    let moreResults = m.getMoreResults();
-    moreResults.then((results) => {
-        let movies = results.Search; //extract nested array of search results
-        updateResultCounter(m.totalResultsViewed, results.totalResults);
-        let output = '';
-        movies.forEach(movies => {
-            output += template.movieCard(movies);
-        });
-        resultList.insertAdjacentHTML('beforeend', output);
-        m.hasMoreResults() ? '' : disableLoadMoreButton();
+    let results = m.getMoreResults();
+    results.then((results) => {
+        updateCounter(m.totalResultsViewed, results.totalResults);
+        resultList.insertAdjacentHTML('beforeend', template.render(results.Search));
+        m.hasMoreResults() ? '' : showDisabledMoreBtn();
     });
 };
+
+/*
+ONLOAD
+*/
+document.addEventListener("DOMContentLoaded", function(event) {
+    initfocusOnSearch(); //call once on page load
+    initMultiPageSearch(); //call once on page load
+    initMoreBtn(); //call once on page load
+});

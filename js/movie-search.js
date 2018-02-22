@@ -16,7 +16,9 @@ class MovieSearch {
 
     //calculate total pages, where 1 page = 10 results; count starts from 1
     totalPages() {
-        return Math.round(this.totalResultsFound / 10); //e.g. 999 / 10 = 100 pages
+        if (this.totalResultsFound > 10) {
+            return Math.round(this.totalResultsFound / 10);
+        } else return 1;
     }
 
     remainingPages() {
@@ -32,7 +34,7 @@ class MovieSearch {
         return this.remainingPages() > 0 ? true : false;
     }
 
-    resetCounts() {
+    reset() {
         this.totalResultsFound, this.totalResultsViewed = 0;
     }
 
@@ -49,8 +51,9 @@ class MovieSearch {
         return response;
     }
 
+    //called by search input field, ovewriting previous search
     newSearch(searchText) {
-        this.resetCounts(); //new search start counts over
+        this.reset(); //reset counts
         this.searchText = searchText;
         return this.getFromApi();
     }
