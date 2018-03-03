@@ -14,16 +14,29 @@ const template = (function() { //module pattern
     INDEX.JS TEMPLATE
     */
 
+    /*
+    example placeholder urls:
+    url + size + color in hex
+    http://via.placeholder.com/175x263/33363a
+    http://via.placeholder.com/640x480/33363a
+    */
+    let getPlaceholderUrl = (height, width) => {
+        return `http://via.placeholder.com/${height}x${width}/33363a`
+    };
+
     exportable.render = (movies) => {
         let output = '';
         movies.forEach(movies => {
+            if (movies.Poster === 'N/A') {
+                movies.Poster = getPlaceholderUrl('175', '263');
+            };
             output += template.movieCard(movies);
         });
         return output;
     }
 
-    exportable.movieCard = (movie) =>
-        `
+    exportable.movieCard = (movie) => {
+        return `
         <li>
           <a onclick="loadMovieProfile('${movie.imdbID}')" href="#">
           <div class="movie-card">
@@ -35,14 +48,18 @@ const template = (function() { //module pattern
           </div>
           </a>
         </li>
-    `; //the entire template literal string is implicitly returned to the caller
+    `;
+    }
 
     /*
     MOVIE-PROFILE.JS TEMPLATE
     */
 
-    exportable.movieProfileFull = (movie) =>
-        `<div class="row">
+    exportable.movieProfileFull = (movie) => {
+        if (movie.Poster === 'N/A') {
+            movie.Poster = getPlaceholderUrl('640', '480');
+        }
+        return `<div class="row">
           <div class="col-md-4">
             <img src="${movie.Poster}" class="img-fluid">
           </div>
@@ -72,7 +89,8 @@ const template = (function() { //module pattern
         </div>
         </div>
         <br><br>
-      `; //the entire template literal string is implicitly returned to the caller
+      `;
+    }
 
     return exportable;
 
