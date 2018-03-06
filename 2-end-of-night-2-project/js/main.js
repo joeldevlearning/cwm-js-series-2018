@@ -1,4 +1,4 @@
-omdb.setKey('');
+omdb.setKey(''); //insert OMDB API key
 
 /*
 JAVASCRIPT FILE LIST:

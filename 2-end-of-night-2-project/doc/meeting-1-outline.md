@@ -1,19 +1,23 @@
-# 0. Meeting #1 Outline
+#Meeting #1 Outline
 
 ### 0.1 - Variables and Functions, Living Together!
 
 #### Declare a variable (`var`, `let`, `const`)
 ES5 had var, which was function-scoped (leading to a behavior called "hoisting")
+
 ES6 has let (not hoisted) and const (protected by copy-on-write), which are block-scoped
-	can only declare let/const ONCE in a single scope, else error
-	can't be used before being declared (in line order of source code)
-	var in contrast has no protections; silently redeclared 
-	
-	const specifically has an extra protection - you cannot redeclare it (but you can redeclare a const object's properties)
-	
-	Simple rule: If you want reassignment, use let; if you don't, use const
-	
-	we'll use let and const regularly from now on... block scoping is simpler to reason about
+
+can only declare let/const ONCE in a single scope, else error
+
+can't be used before being declared (in line order of source code)
+
+var in contrast has no protections; silently redeclared 
+
+const specifically has an extra protection - you cannot redeclare it (but you can redeclare a const object's properties)
+
+Simple rule: If you want reassignment, use let; if you don't, use const
+
+we'll use let and const regularly from now on... block scoping is simpler to reason about
 
 #### Declare a function in a variable
 

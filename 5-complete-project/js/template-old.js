@@ -1,47 +1,43 @@
-/*
-SUMMARY
-DEPENDS ON: none
-FUNCTIONALITY: Supports mixing javascript variables with html (in string form) via template literals
-USED BY: index.js and movie-profile.js
-NOTE: The template functions each return strings, not DOM nodes. To insert them into the DOM, assign their value to innerHTML or similar (the append* methods will NOT work).
-*/
+let template = (function() {
 
-const template = (function() { //module pattern
+    let exposable = {};
 
-    let exportable = {};
-
-    /*
-    INDEX.JS TEMPLATE
-    */
-
-    exportable.render = (movies) => {
-        let output = '';
-        movies.forEach(movies => {
-            output += template.movieCard(movies);
-        });
-        return output;
-    }
-
-    exportable.movieCard = (movie) =>
+    exposable.movieCard = (movie) =>
         `
-        <li>
-          <a onclick="loadMovieProfile('${movie.imdbID}')" href="#">
-          <div class="movie-card">
-            <img src="${movie.Poster}" alt="${movie.Title}, ${movie.Year}">
-            <br>
-            <span class="movie-card-title heavy">${movie.Title}</span>
-            <br>
-            <span class="movie-card-year">${movie.Year}</span>
+    <li>
+    <a onclick="loadMovieProfile('${movie.imdbID}')" href="#">
+    <div class="movie-card">
+        <img src="${movie.Poster}" alt="${movie.Title}, ${movie.Year}">
+        <br>
+        <span class="movie-card-title heavy">${movie.Title}</span>
+        <br>
+        <span class="movie-card-year">${movie.Year}</span>
+      
+     </div>
+     </a>
+  </li>
+  
+    `;
+
+    exposable.oneMovieCard = (movie) =>
+        `  <div class="col-md-4">
+            <div class="well movie-card">
+            <a onclick="loadMovieProfile('${movie.imdbID}')" class="btn btn-primary" href="#">  
+            <img class="img-fluid" src="${movie.Poster}" alt="${movie.Title}, ${movie.Year}">
+              <h4 class="movie-card-title">${movie.Title}</h4>
+              <h5 class="movie-card-year">${movie.Year}</h5>
+              </a>
+            </div>
           </div>
-          </a>
-        </li>
-    `; //the entire template literal string is implicitly returned to the caller
+    `;
 
-    /*
-    MOVIE-PROFILE.JS TEMPLATE
-    */
+    exposable.loadMoreButton = () =>
+        `   <div class="load-more">
+        <a href="#" class="btn btn-default">Load More</a>
+    </div>
+    `
 
-    exportable.movieProfileFull = (movie) =>
+    exposable.oneMovieProfile = (movie) =>
         `<div class="row">
           <div class="col-md-4">
             <img src="${movie.Poster}" class="img-fluid">
@@ -72,8 +68,8 @@ const template = (function() { //module pattern
         </div>
         </div>
         <br><br>
-      `; //the entire template literal string is implicitly returned to the caller
+      `;
 
-    return exportable;
+    return exposable
 
 }());
